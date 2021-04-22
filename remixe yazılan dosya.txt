@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
+ 
+import "https://github.com/0xcert/ethereum-erc721/src/contracts/tokens/nf-token-metadata.sol";
+import "https://github.com/0xcert/ethereum-erc721/src/contracts/ownership/ownable.sol";
+
+contract newNFT is NFTokenMetadata, Ownable {
+    
+    uint256 public nftprice = 0;
+  constructor() {
+    nftName = "TEST_NFT2";
+    nftSymbol = "TESTING";
+  }
+ 
+  function mint(address _to, uint256 _tokenId, string calldata _uri) external onlyOwner {
+    super._mint(_to, _tokenId);
+    super._setTokenUri(_tokenId, _uri);
+  }
+  function setprice(uint256 price,address exchangeaddress)public{
+      require(msg.sender == this.ownerOf(1));
+      nftprice = price;
+  }
+  function transferNft(address NFTaddress) public payable{
+        newNFT NFTtoTransfer = newNFT(NFTaddress);
+        require (msg.value == NFTtoTransfer.nftprice());
+        payable(NFTtoTransfer.ownerOf(1)).transfer(msg.value);
+        NFTtoTransfer.safeTransferFrom(NFTtoTransfer.ownerOf(1),msg.sender,1);
+    }
+ 
+}
+
+

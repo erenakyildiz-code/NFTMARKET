@@ -1,0 +1,646 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+<head>
+<meta charset= 'utf-8'>
+<meta http-equiv="X-UA-Compatible", content="IE=edge">
+<title>Web 3 Demo</title>
+<meta name= 'viewport' content= 'width=device.width, initial-scale=1'>
+<script src = 'node_modules/web3/dist/web3.min.js'></script> 
+</head>
+</body>
+	NFT MARKET
+    <br >
+    <head>
+        <script type="text/JavaScript">
+            function showMessage(){
+                var message = document.getElementById("message").value;
+                display_message.innerHTML= message;
+                setnftprice(message);
+            }
+			function getaddress(){
+				var addressofnft = document.getElementById("addressofnft").value;
+                display_address.innerHTML= addressofnft;
+				
+				return addressofnft;
+			}
+			
+            async function setnftprice(message){
+                updateStatus('pricing token....');
+                const coolNumber = await window.contract.methods.setprice(message,await getaddress()).send({from: await getCurrentAccount()});
+				updateStatus('token pricing successfull');
+				approve();
+			}
+			async function approve(){
+				updateStatus('waiting for approval...');
+				const approve = await window.contract.methods.approve(await getaddress(),1).send({from: await getCurrentAccount()});
+				updateStatus('approval successfull, now your token can be sold!');
+			}
+			async function load_nft_content(){
+				let url = await window.contract.methods.tokenURI(1).call();
+			fetch(url)
+.then(res => res.json())
+.then((out) => {
+	img.src  = out["image"];
+	updatename(out["name"]);
+	updatedesc(out["description"]);
+	
+})
+.catch(err => { throw err });
+   		 	var img = document.createElement("img");
+    	
+				
+    		img.alt = "NFT";
+
+    // This next line will just add it to the <body> tag
+			return(img);
+			}
+			async function show_image() {
+				
+    document.body.appendChild(await load_nft_content());
+}
+        </script>
+    </head>
+    <body>
+    <form>
+    if you are the owner, you may enter price in wei, YOU HAVE TO SET ADDRESS BEFORE USING THIS <input type="text" id = "message">
+	<input type="button" onclick="showMessage();" value="Set price" />
+	
+	<div></div>
+	
+	<div></div>
+	You need to set the address of this NFT<input type="text" id = "addressofnft">
+	<input type="button" onclick="getaddress();load();" value="Set address"/>
+    </form>
+    <p> Price is now: <span id = "display_message"></span> </p>
+	<p>address is now: <span id= "display_address"></span></p>
+	
+
+    </body>
+	<br>
+	Addresses of NFT's that you can buy currently:<br>
+	0x65BBb68f0Ac2e58EF4D0B988BF5f98c51fb8Af65<br>
+	0xc4191F99F0CB3d71b708A6ccA6BefBF1fD9be4f7<br>
+	0x9E6F7E01499837C766DD5FF4DD499E14Be566e95<br>
+    <button onclick="printCoolNumber();" >NFT name</button>
+    <button onclick="setCoolNumber();"> NFT symbol</button>
+	<button onclick="getnftprice();"> NFT price in Ether</button>
+	<button onclick="Buynft();"> Buy this NFT</button>
+	<button onclick="show_image();">Show contents of NFT</button> 
+	
+    <br />
+    Status: <span id="status"> loading...</span>
+	<br>
+	NFT name: <span id="Name"> Set the address first.</span>
+	<br>
+	NFT Description: <span id="Desc"> Set the address first.</span>
+	<br>
+	<script type="text/javascript">
+		async function loadWeb3(){
+			if(window.ethereum){
+				window.web3 = new Web3(window.ethereum);
+				window.ethereum.enable();
+			}
+		}
+	
+		async function loadContract() {
+			return await new window.web3.eth.Contract([
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "_approved",
+				"type": "bool"
+			}
+		],
+		"name": "ApprovalForAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "CANNOT_TRANSFER_TO_ZERO_ADDRESS",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "NOT_CURRENT_OWNER",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_approved",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_operator",
+				"type": "address"
+			}
+		],
+		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_uri",
+				"type": "string"
+			}
+		],
+		"name": "mint",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nftprice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "_approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "exchangeaddress",
+				"type": "address"
+			}
+		],
+		"name": "setprice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "_interfaceID",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "_symbol",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "NFTaddress",
+				"type": "address"
+			}
+		],
+		"name": "transferNft",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+],getaddress())}
+	function updateStatus(Status){
+        const statusEl = document.getElementById('status');
+        statusEl.innerHTML = Status;
+        console.log(Status);
+    }
+	function updatedesc(Status){
+        const statusEl = document.getElementById('Desc');
+        statusEl.innerHTML = Status;
+        console.log(Status);
+    }
+	function updatename(Status){
+        const statusEl = document.getElementById('Name');
+        statusEl.innerHTML = Status;
+        console.log(Status);
+    }
+	var buyer;
+    async function printCoolNumber(){
+        updateStatus('fetching token name....');
+        const coolNumber = await window.contract.methods.name().call();
+        updateStatus(coolNumber);
+
+    }
+    async function setCoolNumber(){
+        updateStatus('fetching token symbol....');
+        const coolNumber = await window.contract.methods.symbol().call();
+        updateStatus(coolNumber);
+    }
+	async function getnftprice(){
+		updateStatus('fetching token price....');
+		const coolNumber = await window.contract.methods.nftprice().call();
+		updateStatus(coolNumber/ 1000000000000000000, "Ether");
+	}
+	async function getCurrentAccount(){
+		const accounts = await window.web3.eth.getAccounts();
+		return accounts[0];
+	}
+	async function Buynft(){
+		updateStatus('buying token....');
+		const address = await getCurrentAccount();
+		const coolNumber = await window.contract.methods.transferNft(getaddress()).send({from: address , value: await window.contract.methods.nftprice().call()});
+
+		updateStatus('token bought successfully.');
+	}
+    async function load() {
+        await loadWeb3();
+        window.contract = await loadContract();
+        updateStatus('Ready!');
+		load_nft_content();
+
+
+    }
+	
+
+    
+
+    </script>
+
+</body>
+
+</html>
+
+
+
+
