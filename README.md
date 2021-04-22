@@ -1,2 +1,2 @@
 # NFTMARKET
-An nft site with no frontend
+A nft site with no frontend
